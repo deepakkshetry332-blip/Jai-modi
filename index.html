@@ -1,47 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flying Leader Game</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        #game-board { 
-            width: 100vw; height: 100vh; 
-            background: #70c5ce; /* Sky Blue */
-            position: relative; 
-        }
-        
-        /* THE HUGE CHARACTER */
-        #player {
-            width: 120px; height: 120px; 
+        body { margin: 0; overflow: hidden; background: skyblue; font-family: sans-serif; }
+        #player { 
+            width: 100px; height: 100px; 
             position: absolute; left: 50px; top: 50%;
             background: url('char.png') no-repeat center/contain;
             z-index: 10;
         }
-
-        /* THE OBSTACLES */
-        .obstacle {
-            width: 80px; position: absolute; right: -100px;
-        }
-        .top { background: url('enemy1.png') no-repeat bottom/contain; }
-        .bottom { background: url('enemy2.png') no-repeat top/contain; }
-
-        #score {
-            position: absolute; top: 20px; left: 20px;
-            font-size: 30px; color: white; font-weight: bold; z-index: 20;
-        }
+        .enemy { width: 90px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
+        .top { background-image: url('enemy1.png'); top: 0; }
+        .bottom { background-image: url('enemy2.png'); bottom: 0; }
     </style>
 </head>
 <body onclick="jump()">
-
-    <div id="game-board">
-        <div id="score">0</div>
-        <div id="player"></div>
-    </div>
-
-    <audio id="gameMusic" src="music.mp3" loop></audio>
-
-    <script src="script.js"></script>
+    <div id="player"></div>
+    <audio id="m" src="music.mp3" loop></audio>
+    <script>
+        let p = document.getElementById('player'), m = document.getElementById('m');
+        let y = 200, v = 0, active = false;
+        function jump() { v = -8; if(!active){ active=true; m.play(); spawn(); } }
+        setInterval(() => {
+            if(!active) return;
+            v += 0.4; y += v; p.style.top = y + "px";
+            if(y > window.innerHeight || y < 0) location.reload();
+        }, 20);
+        function spawn() {
+            let gap = 270, h = Math.random() * (window.innerHeight - gap - 100) + 50;
+            let t = document.createElement('div'), b = document.createElement('div');
+            t.className = 'enemy top'; t.style.height = h + "px";
+            b.className = 'enemy bottom'; b.style.height = (window.innerHeight - h - gap) + "px";
+            document.body.appendChild(t); document.body.appendChild(b);
+            let x = window.innerWidth;
+            let move = setInterval(() => {
+                x -= 5; t.style.left = x + "px"; b.style.left = x + "px";
+                let pr = p.getBoundingClientRect(), tr = t.getBoundingClientRect(), br = b.getBoundingClientRect();
+                if((pr.right > tr.left && pr.left < tr.right && pr.top < tr.bottom) || 
+                   (pr.right > br.left && pr.left < br.right && pr.bottom > br.top)) location.reload();
+                if(x < -100) { clearInterval(move); t.remove(); b.remove(); }
+            }, 20);
+            setTimeout(spawn, 2000);
+        }
+    </script>
 </body>
 </html>
