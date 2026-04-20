@@ -2,17 +2,17 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flying Leader</title>
     <style>
         body { margin: 0; overflow: hidden; background: #87CEEB; touch-action: manipulation; }
         #player { 
             width: 90px; height: 90px; 
             position: absolute; left: 50px; top: 50%;
-            /* This will try to find your sunglasses photo */
+            /* This MUST match your file name exactly */
             background: url('char.png.PNG') no-repeat center/contain;
             z-index: 10;
         }
         .enemy { width: 80px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
-        /* We are swapping these to match your files */
         .top { background-image: url('enemy1.png.PNG'); top: 0; }
         .bottom { background-image: url('enemy2.png.PNG'); bottom: 0; }
     </style>
@@ -25,7 +25,7 @@
         let y = 200, v = 0, active = false;
         function jump() { 
             v = -7; 
-            if(!active){ active = true; m.play(); spawn(); } 
+            if(!active){ active = true; m.play().catch(e => console.log(e)); spawn(); } 
         }
         setInterval(() => {
             if(!active) return;
