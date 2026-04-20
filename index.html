@@ -2,43 +2,63 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flying Leader</title>
     <style>
-        body { margin: 0; overflow: hidden; background: skyblue; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background: #87CEEB; touch-action: manipulation; }
         #player { 
-            width: 100px; height: 100px; 
+            width: 80px; height: 80px; 
             position: absolute; left: 50px; top: 50%;
-            background: url('char.png') no-repeat center/contain;
+            /* Matching your double extension filenames */
+            background: url('char.png.PNG') no-repeat center/contain;
             z-index: 10;
         }
-        .enemy { width: 90px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
-        .top { background-image: url('enemy1.png'); top: 0; }
-        .bottom { background-image: url('enemy2.png'); bottom: 0; }
+        .enemy { width: 70px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
+        .top { background-image: url('enemy1.png.PNG'); top: 0; }
+        .bottom { background-image: url('enemy2.png.PNG'); bottom: 0; }
     </style>
 </head>
 <body onclick="jump()">
     <div id="player"></div>
-    <audio id="m" src="music.mp3" loop></audio>
+    <audio id="m" src="music.mp3.mp3" loop></audio>
+    
     <script>
         let p = document.getElementById('player'), m = document.getElementById('m');
         let y = 200, v = 0, active = false;
-        function jump() { v = -8; if(!active){ active=true; m.play(); spawn(); } }
+
+        function jump() { 
+            v = -7; 
+            if(!active){ 
+                active = true; 
+                m.play().catch(e => console.log("Sound error:", e)); 
+                spawn(); 
+            } 
+        }
+
         setInterval(() => {
             if(!active) return;
             v += 0.4; y += v; p.style.top = y + "px";
+            // Game over if you hit the floor or ceiling
             if(y > window.innerHeight || y < 0) location.reload();
         }, 20);
+
         function spawn() {
-            let gap = 270, h = Math.random() * (window.innerHeight - gap - 100) + 50;
+            let gap = 240, h = Math.random() * (window.innerHeight - gap - 100) + 50;
             let t = document.createElement('div'), b = document.createElement('div');
             t.className = 'enemy top'; t.style.height = h + "px";
             b.className = 'enemy bottom'; b.style.height = (window.innerHeight - h - gap) + "px";
             document.body.appendChild(t); document.body.appendChild(b);
+            
             let x = window.innerWidth;
             let move = setInterval(() => {
                 x -= 5; t.style.left = x + "px"; b.style.left = x + "px";
                 let pr = p.getBoundingClientRect(), tr = t.getBoundingClientRect(), br = b.getBoundingClientRect();
+                
+                // Collision check
                 if((pr.right > tr.left && pr.left < tr.right && pr.top < tr.bottom) || 
-                   (pr.right > br.left && pr.left < br.right && pr.bottom > br.top)) location.reload();
+                   (pr.right > br.left && pr.left < br.right && pr.bottom > br.top)) {
+                    location.reload();
+                }
+                
                 if(x < -100) { clearInterval(move); t.remove(); b.remove(); }
             }, 20);
             setTimeout(spawn, 2000);
