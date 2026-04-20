@@ -6,13 +6,14 @@
     <style>
         body { margin: 0; overflow: hidden; background: #87CEEB; touch-action: manipulation; }
         #player { 
-            width: 90px; height: 90px; 
+            width: 80px; height: 80px; 
             position: absolute; left: 50px; top: 50%;
-            /* This MUST match your file name exactly */
-            background: url('char.png.PNG') no-repeat center/contain;
+            background-image: url('char.png.PNG'); 
+            background-size: contain;
+            background-repeat: no-repeat;
             z-index: 10;
         }
-        .enemy { width: 80px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
+        .enemy { width: 70px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
         .top { background-image: url('enemy1.png.PNG'); top: 0; }
         .bottom { background-image: url('enemy2.png.PNG'); bottom: 0; }
     </style>
@@ -21,31 +22,68 @@
     <div id="player"></div>
     <audio id="m" src="music.mp3.mp3" loop></audio>
     <script>
-        let p = document.getElementById('player'), m = document.getElementById('m');
+        const p = document.getElementById('player'), m = document.getElementById('m');
         let y = 200, v = 0, active = false;
+
         function jump() { 
             v = -7; 
-            if(!active){ active = true; m.play().catch(e => console.log(e)); spawn(); } 
+            if(!active){ 
+                active = true; 
+                m.play().catch(() => {}); 
+                spawn(); 
+            } 
         }
+
         setInterval(() => {
             if(!active) return;
-            v += 0.4; y += v; p.style.top = y + "px";
-            if(y > window.innerHeight || y < 0) location.reload();
+            v += 0.4; y += v;
+            p.style.top = y + "px";
+
+            // Fail if you go off screen
+            if(y > window.innerHeight || y < -50) {
+                location.reload();
+            }
         }, 20);
+
         function spawn() {
-            let gap = 260, h = Math.random() * (window.innerHeight - gap - 100) + 50;
-            let t = document.createElement('div'), b = document.createElement('div');
+            if(!active) return;
+            let gap = 250;
+            let h = Math.random() * (window.innerHeight - gap - 100) + 50;
+            
+            let t = document.createElement('div');
+            let b = document.createElement('div');
             t.className = 'enemy top'; t.style.height = h + "px";
             b.className = 'enemy bottom'; b.style.height = (window.innerHeight - h - gap) + "px";
-            document.body.appendChild(t); document.body.appendChild(b);
+            
+            document.body.appendChild(t);
+            document.body.appendChild(b);
+
             let x = window.innerWidth;
             let move = setInterval(() => {
-                x -= 5; t.style.left = x + "px"; b.style.left = x + "px";
-                let pr = p.getBoundingClientRect(), tr = t.getBoundingClientRect(), br = b.getBoundingClientRect();
-                if((pr.right > tr.left && pr.left < tr.right && pr.top < tr.bottom) || 
-                   (pr.right > br.left && pr.left < br.right && pr.bottom > br.top)) location.reload();
-                if(x < -100) { clearInterval(move); t.remove(); b.remove(); }
+                x -= 5;
+                t.style.left = x + "px";
+                b.style.left = x + "px";
+
+                // COLLISION LOGIC
+                let pr = p.getBoundingClientRect();
+                let tr = t.getBoundingClientRect();
+                let br = b.getBoundingClientRect();
+
+                if (
+                    (pr.right > tr.left && pr.left < tr.right && pr.top < tr.bottom) || 
+                    (pr.right > br.left && pr.left < br.right && pr.bottom > br.top)
+                ) {
+                    active = false;
+                    location.reload(); // Restarts the game
+                }
+
+                if(x < -100) {
+                    clearInterval(move);
+                    t.remove();
+                    b.remove();
+                }
             }, 20);
+
             setTimeout(spawn, 2000);
         }
     </script>
