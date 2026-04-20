@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flying Leader Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        #game-board { 
+            width: 100vw; height: 100vh; 
+            background: #70c5ce; /* Sky Blue */
+            position: relative; 
+        }
+        
+        /* THE HUGE CHARACTER */
+        #player {
+            width: 120px; height: 120px; 
+            position: absolute; left: 50px; top: 50%;
+            background: url('char.png') no-repeat center/contain;
+            z-index: 10;
+        }
+
+        /* THE OBSTACLES */
+        .obstacle {
+            width: 80px; position: absolute; right: -100px;
+        }
+        .top { background: url('enemy1.png') no-repeat bottom/contain; }
+        .bottom { background: url('enemy2.png') no-repeat top/contain; }
+
+        #score {
+            position: absolute; top: 20px; left: 20px;
+            font-size: 30px; color: white; font-weight: bold; z-index: 20;
+        }
+    </style>
+</head>
+<body onclick="jump()">
+
+    <div id="game-board">
+        <div id="score">0</div>
+        <div id="player"></div>
+    </div>
+
+    <audio id="gameMusic" src="music.mp3" loop></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
