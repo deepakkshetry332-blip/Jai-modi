@@ -8,12 +8,12 @@
         #player { 
             width: 80px; height: 80px; 
             position: absolute; left: 50px; top: 50%;
-            background-image: url('char.png.PNG'); 
-            background-size: contain;
-            background-repeat: no-repeat;
+            /* Matches your GitHub file name */
+            background: url('char.png.PNG') no-repeat center/contain;
             z-index: 10;
         }
-        .enemy { width: 70px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
+        .enemy { width: 75px; position: absolute; right: -100px; background-size: contain; background-repeat: no-repeat; }
+        /* Matches your GitHub file names */
         .top { background-image: url('enemy1.png.PNG'); top: 0; }
         .bottom { background-image: url('enemy2.png.PNG'); bottom: 0; }
     </style>
@@ -27,63 +27,36 @@
 
         function jump() { 
             v = -7; 
-            if(!active){ 
-                active = true; 
-                m.play().catch(() => {}); 
-                spawn(); 
-            } 
+            if(!active){ active = true; m.play(); spawn(); } 
         }
 
         setInterval(() => {
             if(!active) return;
             v += 0.4; y += v;
             p.style.top = y + "px";
-
-            // Fail if you go off screen
-            if(y > window.innerHeight || y < -50) {
-                location.reload();
-            }
+            if(y > window.innerHeight || y < -50) location.reload();
         }, 20);
 
         function spawn() {
             if(!active) return;
-            let gap = 250;
-            let h = Math.random() * (window.innerHeight - gap - 100) + 50;
-            
-            let t = document.createElement('div');
-            let b = document.createElement('div');
+            let gap = 250, h = Math.random() * (window.innerHeight - gap - 100) + 50;
+            let t = document.createElement('div'), b = document.createElement('div');
             t.className = 'enemy top'; t.style.height = h + "px";
             b.className = 'enemy bottom'; b.style.height = (window.innerHeight - h - gap) + "px";
-            
-            document.body.appendChild(t);
-            document.body.appendChild(b);
+            document.body.appendChild(t); document.body.appendChild(b);
 
             let x = window.innerWidth;
             let move = setInterval(() => {
-                x -= 5;
-                t.style.left = x + "px";
-                b.style.left = x + "px";
+                x -= 5; t.style.left = x + "px"; b.style.left = x + "px";
+                let pr = p.getBoundingClientRect(), tr = t.getBoundingClientRect(), br = b.getBoundingClientRect();
 
-                // COLLISION LOGIC
-                let pr = p.getBoundingClientRect();
-                let tr = t.getBoundingClientRect();
-                let br = b.getBoundingClientRect();
-
-                if (
-                    (pr.right > tr.left && pr.left < tr.right && pr.top < tr.bottom) || 
-                    (pr.right > br.left && pr.left < br.right && pr.bottom > br.top)
-                ) {
-                    active = false;
-                    location.reload(); // Restarts the game
+                // Collision Detection
+                if ((pr.right > tr.left + 5 && pr.left < tr.right - 5 && pr.top < tr.bottom - 5) || 
+                    (pr.right > br.left + 5 && pr.left < br.right - 5 && pr.bottom > br.top + 5)) {
+                    location.reload();
                 }
-
-                if(x < -100) {
-                    clearInterval(move);
-                    t.remove();
-                    b.remove();
-                }
+                if(x < -100) { clearInterval(move); t.remove(); b.remove(); }
             }, 20);
-
             setTimeout(spawn, 2000);
         }
     </script>
